@@ -7,9 +7,12 @@ description: "Padrões de Design de UI, Tipografia e Containers do SBV + APH App
 
 Para todas as telas do aplicativo (fluxos de primeiros socorros, guias, simulador e telas de triagem):
 
-## 1. Tipografia e Escala de Fontes
+## 1. Tipografia e Escala de Fontes (Acessibilidade Crítica de Emergência)
+- **REGRA DE OURO**: NUNCA usar fontes menores que `text-sm` (14px). Em emergência (pânico, luz solar, socorristas idosos ou com presbiopia), fontes miúdas são inaceitáveis e perigosas.
 - **Título do Topo / Header**: `text-lg sm:text-xl font-black text-slate-900 tracking-wide`
-- **Perguntas Centrais / Tomada de Decisão**: `text-lg sm:text-xl font-black text-slate-900 leading-snug`
+- **Perguntas Centrais / Tomada de Decisão**: `text-xl sm:text-2xl font-black text-slate-900 leading-snug`
+- **Subtítulos e Descrições de Apoio**: `text-sm sm:text-base font-bold text-slate-700`
+- **Técnicas e Destaques Críticos**: `text-sm sm:text-base font-black text-red-700`
 - **Botões de Ação Direta (SIM / NÃO)**: Manter texto limpo e proporcional em caixa alta `text-base tracking-wider font-extrabold text-white`
 - **Legendas dos Botões**: `text-sm font-semibold text-slate-700 mt-2 text-center`
 - **Seção de Dicas / Recomendações**:
