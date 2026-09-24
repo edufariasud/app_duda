@@ -1,0 +1,60 @@
+# Regras Globais do Projeto (SBV + APH)
+
+Este arquivo define os padrões de arquitetura, design de interface e diretrizes clínicas de atendimento de emergência do projeto **duda_app**.
+
+> As regras detalhadas do Antigravity residem em `.agents/rules/`:
+> - Padrões de Design: `.agents/rules/design_standards.md`
+> - Protocolos Clínicos & Fluxograma: `.agents/rules/protocolos_clinicos.md`
+> - Skills disponíveis do ecossistema: `.agents/skills/` (Vercel, React, Next.js, Turbopack, DaisyUI, etc.)
+
+---
+
+## 🚨 REGRA MANDATÓRIA 1: COMPONENTIZAR TUDO (ZERO TELAS MONOLÍTICAS)
+- **NUNCA** construa telas monolíticas ou insira blocos de botões, cards, headers ou layouts soltos no meio do JSX de uma página.
+- **TUDO DEVE SER COMPONENTIZADO**: Qualquer elemento visual recorrente ou de significado semântico deve ser criado ou reaproveitado de `src/components/ui/` (`ScreenHeader`, `EmergencyImage`, `QuestionCard`, `DecisionButtons`, `DecisionOptionCard`, `SelectionCard`, `AlertBanner`, `TipsCard`, `WhyAccordion`, `AppShell`, `BottomNav`).
+- Quando surgir qualquer novo padrão visual ou interação, crie primeiro o componente atômico em `src/components/ui/` e somente depois utilize-o na tela.
+
+---
+
+## 📋 REGRA MANDATÓRIA 2: FIDELIDADE TOTAL AO CONTEÚDO DO CSV
+- **TODO O CONTEÚDO DO CSV DEVE SER UTILIZADO**: Nenhuma informação técnica, conduta ou parâmetro clínico presente no CSV pode ser ignorada ou omitida.
+- **O campo "Por quê / Justificativa Clínica" DEVE APARECER APENAS AO CLIQUE**:
+  - Para evitar sobrecarga cognitiva do socorrista em momento de urgência, o "Por quê" fisiopatológico fica em um componente expansível interativo (ex: `WhyAccordion` ou botão *"💡 Por que fazer isso? / Justificativa médica"*).
+  - O socorrista ou estudante só visualiza o texto detalhado se clicar para expandir.
+- **Campos obrigatórios em cada etapa:** Pergunta Central, Resposta/Condição, Diagnóstico Clínico, Intervenção Imediata (Conduta), Próximo Passo Crítico, Nível de Prioridade e o "Por quê" expansível sob demanda.
+
+---
+
+## 🏷️ REGRA MANDATÓRIA 3: IDENTIFICAÇÃO OBRIGATÓRIA DE ETAPAS POR CÓDIGO (IDs 1.1, 1.2...)
+- Todas as situações, telas, rotas e componentes clínicos **DEVEM OBRIGATORIAMENTE** carregar a identificação por código numérico de etapa do fluxograma oficial:
+  - `1.1` - Cena Insegura / Risco Iminente
+  - `1.2` - Cena Segura / Aproximação com EPIs
+  - `2.1` - Responsiva / Consciente (Investigar SAMPLA)
+  - `2.2` - Não Responsiva / Inconsciente (Chamar 192 + DEA)
+  - `3.1` - Checagem de Pulso Carotídeo em Adulto (≤ 10s)
+  - `3.2` - Checagem de Pulso Carotídeo/Femoral em Criança (≤ 10s)
+  - `3.3` - Checagem de Pulso Braquial em Lactente (≤ 10s)
+  - `4.1` - Inconsciente com Pulso e Respiração $\rightarrow$ Posição Lateral de Segurança (PLS)
+  - `4.2` - Parada Respiratória Adulto (Ventilação de Resgate 1 a cada 6s)
+  - `4.3` - Parada Respiratória Pediátrica (Ventilação de Resgate 1 a cada 2-3s)
+  - `5.1` - PCR Adulto $\rightarrow$ RCP 30:2 (5 a 6 cm)
+  - `5.2` - PCR Criança $\rightarrow$ RCP 5 cm (30:2 com 1 socorr / 15:2 com 2 socorr)
+  - `5.3` - PCR Lactente $\rightarrow$ RCP 4 cm (30:2 com 1 socorr / 15:2 com 2 socorr)
+  - `5.4` - Dúvida sobre pulso/respiração $\rightarrow$ Tratar obrigatoriamente como PCR
+  - `6.1` - DEA $\rightarrow$ Análise, choque e retorno imediato à RCP por 2 min
+- **Onde aplicar essa identificação:**
+  1. No código TypeScript: propriedades, chaves de estado e IDs de tela (`stepId: "1.1"`).
+  2. Nos comentários e cabeçalhos de cada arquivo de tela (`/** ETAPA CLÍNICA 1.1: Cena Insegura */`).
+  3. No cabeçalho da UI como referência/badge quando aplicável.
+- **NÃO PODE ESQUECER**: Nenhuma tela ou etapa clínica pode ser adicionada sem sua respectiva identificação codificada.
+
+---
+
+## 🎨 REGRA MANDATÓRIA 4: ACESSIBILIDADE E TIPOGRAFIA DE EMERGÊNCIA
+- **FONTE MÍNIMA**: **NUNCA usar fontes menores que `text-sm` (14px)**.
+- **Cores Semânticas**:
+  - Verde (`#15803d`): Afirmativo / Estável / Sim
+  - Vermelho (`#b91c1c`): Urgência / Negativo / PCR / Não
+  - Azul (`#1d4ed8`): Vias aéreas / Manobras / Engasgo
+  - Âmbar (`#ea580c`): Avisos / Atenção / Suspeita
+- **Imagens**: Envolver sempre em container `rounded-2xl` com `aspect-4/3 max-h-72` e `object-cover`.

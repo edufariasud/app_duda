@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Fundo escuro do app para o ícone PWA -->
+  <rect width="512" height="512" rx="108" fill="#070d1e"/>
+  
+  <!-- Brilho de fundo avermelhado suave -->
+  <circle cx="256" cy="240" r="160" fill="#dc2626" opacity="0.15" filter="blur(40px)"/>
+
+  <!-- Contorno do Coração -->
+  <path d="M256 420C256 420 80 308 80 188C80 120 134 68 200 68C236 68 256 94 256 94C256 94 276 68 312 68C378 68 432 120 432 188C432 308 256 420 256 420Z" 
+        stroke="#ef4444" 
+        stroke-width="28" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="#dc2626"
+        fill-opacity="0.08"/>
+
+  <!-- Linha de ECG (Eletrocardiograma) -->
+  <path d="M60 216H180L206 144L234 276L262 174L284 228L300 216H452" 
+        stroke="#ffffff" 
+        stroke-width="18" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+
+  <!-- Cruz Vermelha de Emergência (APH / Primeiros Socorros) -->
+  <g transform="translate(320, 240)">
+    <!-- Fundo da cruz com sombra -->
+    <rect x="24" y="0" width="36" height="84" rx="8" fill="#dc2626"/>
+    <rect x="0" y="24" width="84" height="36" rx="8" fill="#dc2626"/>
+    <!-- Borda sutil de destaque -->
+    <rect x="24" y="0" width="36" height="84" rx="8" stroke="#ffffff" stroke-width="4"/>
+    <rect x="0" y="24" width="84" height="36" rx="8" stroke="#ffffff" stroke-width="4"/>
+  </g>
+</svg>

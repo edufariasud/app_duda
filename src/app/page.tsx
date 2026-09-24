@@ -1,69 +1,268 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useCallback } from "react";
+
+// UI Shell
+import AppShell from "@/components/ui/AppShell";
+import BottomNav, { NavTabId } from "@/components/ui/BottomNav";
+
+// Telas de navegação principal
+import HomeScreen, { ModeType } from "@/components/HomeScreen";
+import PopulacaoScreen from "@/components/PopulacaoScreen";
+import FontesScreen from "@/components/FontesScreen";
+import EstudosScreen from "@/components/EstudosScreen";
+
+// Fluxo clínico: Pessoa Inconsciente (Etapas 1→6)
+import Step_1_SegurancaCena from "@/components/screens/Step_1_SegurancaCena";
+import Step_2_Responsividade from "@/components/screens/Step_2_Responsividade";
+import Step_3_CheckPulso from "@/components/screens/Step_3_CheckPulso";
+import Step_4_Respiracao from "@/components/screens/Step_4_Respiracao";
+import Step_5_RCP from "@/components/screens/Step_5_RCP";
+import Step_6_DEA from "@/components/screens/Step_6_DEA";
+
+import { FaixaEtaria } from "@/data/flowchart";
+
+// ── Tipos de View ─────────────────────────────────────────────────
+type ViewType =
+  // Navegação principal
+  | "home"
+  | "populacao"
+  | "fontes"
+  | "estudante"
+  // Fluxo clínico: Pessoa Inconsciente
+  | "step_1_seguranca"      // Etapas 1.1 / 1.2
+  | "step_2_responsividade" // Etapas 2.1 / 2.2
+  | "step_3_pulso"          // Etapas 3.1 / 3.2 / 3.3
+  | "step_4_respiracao"     // Etapas 4.1 / 4.2 / 4.3
+  | "step_5_rcp"            // Etapas 5.1 / 5.2 / 5.3 / 5.4
+  | "step_6_dea";           // Etapa 6.1
+
+// ── Estado do Fluxo Clínico ───────────────────────────────────────
+interface FlowState {
+  faixaEtaria: FaixaEtaria;
+  isDuvida: boolean; // Veio do caminho 5.4 (dúvida sobre pulso/respiração)
+  rcpOrigem: "step_3_pulso" | "step_4_respiracao" | "step_6_dea"; // Origem precisa para o botão Voltar
+  deaConectado: boolean; // Se o DEA já foi conectado ao tórax
+}
+
+export default function HomePage() {
+  const [selectedMode, setSelectedMode] = useState<ModeType>("populacao");
+  const [activeTab, setActiveTab] = useState<NavTabId>("inicio");
+  const [currentView, setCurrentView] = useState<ViewType>("home");
+  const [flowState, setFlowState] = useState<FlowState>({
+    faixaEtaria: "adulto",
+    isDuvida: false,
+    rcpOrigem: "step_3_pulso",
+    deaConectado: false,
+  });
+
+  // ── Helpers de navegação ────────────────────────────────────────
+
+  const goTo = useCallback((view: ViewType) => setCurrentView(view), []);
+
+  const handleTabChange = useCallback(
+    (tab: NavTabId) => {
+      setActiveTab(tab);
+      if (tab === "inicio") goTo("home");
+      else if (tab === "estudos") goTo("estudante");
+      else if (tab === "mais") goTo("fontes");
+    },
+    [goTo]
+  );
+
+  const handleStart = useCallback(() => {
+    if (selectedMode === "populacao") goTo("populacao");
+    else goTo("estudante");
+  }, [selectedMode, goTo]);
+
+  // ── Handlers do Fluxo Clínico ───────────────────────────────────
+
+  /** 2.2: Inconsciente → define faixa etária e inicia pulso */
+  const handleInconsciente = useCallback(
+    (faixa: FaixaEtaria) => {
+      setFlowState((prev) => ({
+        ...prev,
+        faixaEtaria: faixa,
+        isDuvida: false,
+        deaConectado: false,
+      }));
+      goTo("step_3_pulso");
+    },
+    [goTo]
+  );
+
+  /** 3: Sem pulso → RCP */
+  const handleSemPulso = useCallback(() => {
+    setFlowState((prev) => ({
+      ...prev,
+      isDuvida: false,
+      rcpOrigem: "step_3_pulso",
+      deaConectado: false,
+    }));
+    goTo("step_5_rcp");
+  }, [goTo]);
+
+  /** 4.2/4.3: Pulso cessou durante ventilação → RCP */
+  const handlePulsoCessou = useCallback(() => {
+    setFlowState((prev) => ({
+      ...prev,
+      isDuvida: false,
+      rcpOrigem: "step_4_respiracao",
+      deaConectado: false,
+    }));
+    goTo("step_5_rcp");
+  }, [goTo]);
+
+  /** 5.4: Dúvida sobre pulso ou respiração → RCP (tratar como PCR) */
+  const handleDuvidaPulso = useCallback(
+    (origem: "step_3_pulso" | "step_4_respiracao" = "step_3_pulso") => {
+      setFlowState((prev) => ({
+        ...prev,
+        isDuvida: true,
+        rcpOrigem: origem,
+        deaConectado: false,
+      }));
+      goTo("step_5_rcp");
+    },
+    [goTo]
+  );
+
+  /** 5 → 6: RCP → DEA chegou */
+  const handleIrParaDEA = useCallback(() => goTo("step_6_dea"), [goTo]);
+
+  /** 6 → 5: Pós-choque → voltar ao RCP por 2 min com DEA conectado */
+  const handleVoltarRCP = useCallback(() => {
+    setFlowState((prev) => ({
+      ...prev,
+      isDuvida: false,
+      rcpOrigem: "step_6_dea",
+      deaConectado: true,
+    }));
+    goTo("step_5_rcp");
+  }, [goTo]);
+
+  // ── Renderização Condicional ────────────────────────────────────
+
+  const renderContent = () => {
+    switch (currentView) {
+      // ── FONTES E REFERÊNCIAS
+      case "fontes":
+        return (
+          <FontesScreen
+            onBack={() => {
+              goTo("home");
+              setActiveTab("inicio");
+            }}
+          />
+        );
+
+      // ── ESTUDOS / TABELA DE PARÂMETROS
+      case "estudante":
+        return (
+          <EstudosScreen
+            onBack={() => {
+              goTo("home");
+              setActiveTab("inicio");
+            }}
+          />
+        );
+
+      // ── MENU DE EMERGÊNCIAS
+      case "populacao":
+        return (
+          <PopulacaoScreen
+            onBack={() => goTo("home")}
+            onSelectEmergency={(id) => {
+              if (id === "inconsciente") goTo("step_1_seguranca");
+              // Outros fluxos serão adicionados aqui futuramente
+            }}
+          />
+        );
+
+      // ── FLUXO: ETAPA 1 — Segurança da Cena
+      case "step_1_seguranca":
+        return (
+          <Step_1_SegurancaCena
+            onBack={() => goTo("populacao")}
+            onCenaSegura={() => goTo("step_2_responsividade")}
+          />
+        );
+
+      // ── FLUXO: ETAPA 2 — Responsividade
+      case "step_2_responsividade":
+        return (
+          <Step_2_Responsividade
+            onBack={() => goTo("step_1_seguranca")}
+            onInconsciente={handleInconsciente}
+          />
+        );
+
+      // ── FLUXO: ETAPA 3 — Checagem de Pulso
+      case "step_3_pulso":
+        return (
+          <Step_3_CheckPulso
+            faixaEtaria={flowState.faixaEtaria}
+            onBack={() => goTo("step_2_responsividade")}
+            onPulsoPresente={() => goTo("step_4_respiracao")}
+            onSemPulso={handleSemPulso}
+            onDuvida={() => handleDuvidaPulso("step_3_pulso")}
+          />
+        );
+
+      // ── FLUXO: ETAPA 4 — Respiração / PLS / Ventilação
+      case "step_4_respiracao":
+        return (
+          <Step_4_Respiracao
+            faixaEtaria={flowState.faixaEtaria}
+            onBack={() => goTo("step_3_pulso")}
+            onPulsoCessou={handlePulsoCessou}
+            onDuvida={() => handleDuvidaPulso("step_4_respiracao")}
+          />
+        );
+
+      // ── FLUXO: ETAPA 5 — RCP
+      case "step_5_rcp":
+        return (
+          <Step_5_RCP
+            faixaEtaria={flowState.faixaEtaria}
+            isDuvida={flowState.isDuvida}
+            deaConectado={flowState.deaConectado}
+            onBack={() => goTo(flowState.rcpOrigem)}
+            onIrParaDEA={handleIrParaDEA}
+            onReavaliarSemDEA={() => goTo("step_3_pulso")}
+            onRecuperouSinais={() => goTo("step_4_respiracao")}
+          />
+        );
+
+      // ── FLUXO: ETAPA 6 — DEA
+      case "step_6_dea":
+        return (
+          <Step_6_DEA
+            faixaEtaria={flowState.faixaEtaria}
+            onBack={() => goTo("step_5_rcp")}
+            onVoltarRCP={handleVoltarRCP}
+          />
+        );
+
+      // ── TELA INICIAL (HOME)
+      default:
+        return (
+          <HomeScreen
+            selectedMode={selectedMode}
+            onSelectMode={(mode) => {
+              setSelectedMode(mode);
+              if (mode === "populacao") goTo("populacao");
+              else if (mode === "estudante") goTo("estudante");
+            }}
+            onStart={handleStart}
+          />
+        );
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <AppShell footer={<BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}>
+      {renderContent()}
+    </AppShell>
   );
 }
