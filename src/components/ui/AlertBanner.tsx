@@ -1,7 +1,7 @@
 import React from "react";
-import { TriangleAlert, HeartPulse, ShieldCheck, Info } from "lucide-react";
+import { TriangleAlert, HeartPulse, ShieldCheck, Info, CheckCircle2 } from "lucide-react";
 
-type AlertVariant = "warning" | "danger" | "info" | "dark";
+type AlertVariant = "warning" | "danger" | "info" | "dark" | "success";
 
 interface AlertBannerProps {
   title: string;
@@ -34,6 +34,12 @@ export default function AlertBanner({
           <HeartPulse className="w-6 h-6 animate-pulse" />
         </div>
       ),
+    },
+    success: {
+      container: "bg-emerald-50 border-emerald-300 text-emerald-950",
+      title: "text-sm sm:text-base font-black text-emerald-950 uppercase tracking-tight",
+      description: "text-sm font-bold text-emerald-900",
+      defaultIcon: <CheckCircle2 className="w-7 h-7 text-emerald-600 shrink-0 mt-0.5" />,
     },
     info: {
       container: "bg-blue-50 border-blue-200 text-blue-950",

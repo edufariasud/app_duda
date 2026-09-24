@@ -18,6 +18,7 @@ export { default as NextStepCard } from "./NextStepCard";
 export { default as AppShell } from "./AppShell";
 export { default as EmergencyCallButton } from "./EmergencyCallButton";
 export { default as ParametrosClinicosTable } from "./ParametrosClinicosTable";
+export { default as ParametrosOvaceTable } from "./ParametrosOvaceTable";
 export { default as ClinicalSpecsCard } from "./ClinicalSpecsCard";
 export type { SpecItem } from "./ClinicalSpecsCard";
 export { default as PrimaryActionButton } from "./PrimaryActionButton";
