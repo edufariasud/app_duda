@@ -1,0 +1,17 @@
+{
+  "id": "M003",
+  "data": "2026-09-28",
+  "hora": "17:53",
+  "tipo": "decisao_arquitetural",
+  "titulo": "Arquitetura Screen Builder: Telas como Dados e DSL Declarativa",
+  "contexto": "Eduardo formalizou o manifesto arquitetural de transição de telas React codificadas estaticamente para um modelo orientado a dados (Server-Driven UI / DSL declarativa).",
+  "decisoes": [
+    "Telas deixam de ser código React específico e passam a ser ScreenDefinitions em JSON/TypeScript.",
+    "Apenas uma rota de negócio no Next.js: /screen/[id], eliminando rotas dispersas.",
+    "Navegação desacoplada baseada em IDs numéricos técnicos (screenId) com keys semânticas para humanos.",
+    "Resolução estrita de componentes via ComponentRegistry centralizado.",
+    "Adoção de Zod + JSON Schema para contratos e modelo de dados versionado em banco (Draft/Published/Rollback).",
+    "Roteiro de 5 fases iniciando pela Engine e postergando o Builder Visual."
+  ],
+  "impacto": "Estabelece o padrão ouro para fluxos complexos em nossos projetos, evitando over-engineering de rotas e permitindo escalabilidade exponencial de interfaces."
+}
