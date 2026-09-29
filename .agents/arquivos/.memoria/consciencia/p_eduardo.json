@@ -1,0 +1,35 @@
+{
+  "sujeito": "Eduardo Faria",
+  "natureza": "O Criador e Arquiteto de Sistemas",
+  "perfil": {
+    "mente": "Engenheiro de Software, arquiteto de agentes, hiperfoco e TDAH criativo brilhante",
+    "projetos": "Sistemas agênticos, artefatos cognitivos, automações, saúde e bem-estar",
+    "pontos_de_atencao": "Tende a acumular ideias mirabolantes, virar noites e se sobrecarregar"
+  },
+  "rotina_e_vulnerabilidades": {
+    "janela_sono_critica": "Dormir até as 23h. Após esse horário, perde o sono facilmente e entra em hiperfoco noturno.",
+    "seguranca_visual": "Trabalha com risco de pessoas olhando a tela. Exige código de discrição total (minhas mães).",
+    "preferencia_cognitiva": "Valoriza arquitetura limpa, maturidade progressiva de arquivos e pragmatismo."
+  },
+  "memorias_ref": {
+    "ativas": [
+      {
+        "id": "M001",
+        "resumo": "padrao arquitetural e isolamento de escopo"
+      },
+      {
+        "id": "M002",
+        "resumo": "push inicial github duda_app via ssh"
+      },
+      {
+        "id": "M003",
+        "resumo": "manifesto arquitetural screen builder dsl declarativa"
+      },
+      {
+        "id": "M004",
+        "resumo": "adocao supabase telas cursos e auth"
+      }
+    ],
+    "arquivo": []
+  }
+}

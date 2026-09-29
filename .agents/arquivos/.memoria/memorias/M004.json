@@ -1,0 +1,15 @@
+{
+  "id": "M004",
+  "data": "2026-09-28",
+  "hora": "19:50",
+  "tipo": "decisao_arquitetural",
+  "titulo": "Adoção do Supabase como Espinha Dorsal de Dados para Telas e Cursos",
+  "contexto": "Eduardo expandiu o escopo do ecossistema para suportar escala de centenas/milhares de telas e cursos online com gestão de alunos e progresso, formalizando a escolha do Supabase.",
+  "decisoes": [
+    "Adoção oficial do Supabase (PostgreSQL com JSONB, Auth, RLS e Storage).",
+    "Modelagem relacional integrando Cursos, Módulos, Telas (ScreenDefinitions) e Progresso de Alunos.",
+    "Isolamento arquitetural via ScreenRepository, desacoplando a Engine de Renderização da camada de banco.",
+    "Revisão completa do planejamento de capítulos integrando o ecossistema Supabase."
+  ],
+  "impacto": "Garante infraestrutura para modelo de cursos online e gestão segura de acessos via RLS sem comprometer a pureza declarativa da Screen Engine."
+}
